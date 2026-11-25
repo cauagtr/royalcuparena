@@ -3,6 +3,9 @@ ROYAL CUP NA ARENA · PLANTA INTERATIVA
 Arquivos:
   index.html   página
   styles.css   estilos (Tailwind já compilado, sem CDN)
+  logo-royal-cup.svg   logo (topo do site e ícone da aba)
+  apple-touch-icon.png ícone no iPhone
+  og-image.jpg         prévia do link no WhatsApp
   vercel.json  configuração do Vercel
 
 Publicar no Vercel (sem GitHub):
