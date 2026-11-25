@@ -3,7 +3,6 @@ ROYAL CUP NA ARENA · PLANTA INTERATIVA
 Arquivos:
   index.html   página
   styles.css   estilos (Tailwind já compilado, sem CDN)
-  img/         fotos dos espaços
   vercel.json  configuração do Vercel
 
 Publicar no Vercel (sem GitHub):

@@ -7,7 +7,6 @@
   <meta name="description" content="Planta interativa da Royal Cup na Arena: futebol, negócios e show em um só dia, na Arena da Baixada, em Curitiba." />
   <meta property="og:title" content="Royal Cup na Arena · Planta interativa" />
   <meta property="og:description" content="Futebol, negócios e show em um só dia. Explore os 13 espaços do evento." />
-  <meta property="og:image" content="/img/lounge-convidados.jpg" />
   <meta property="og:type" content="website" />
   <meta name="theme-color" content="#060E1F" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23D4AF37'/%3E%3Cpath d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z' fill='%23060E1F'/%3E%3C/svg%3E" />
@@ -920,7 +919,6 @@
         categories: ["show"],
         categoryLabel: "Show e transmissão",
         location: "Centro do campo (montado após a final)",
-        image: "/img/jogo-e-show.jpg",
         happensHere: "Espetáculo de encerramento televisionado com energia de Super Bowl. Durante os jogos o campo fica totalmente livre; após o apito final, os módulos são acoplados no centro do gramado.",
         items: [
           "Palco circular modular de montagem rápida",
@@ -969,7 +967,6 @@
         categories: ["negocios"],
         categoryLabel: "Negócios e hospitalidade",
         location: "Lounge e restaurante VIP existentes no setor Norte (envidraçados)",
-        image: "/img/lounge-negocios.jpg",
         happensHere: "Ambiente corporativo de alto nível para rodadas de negócios, networking entre executivos e acompanhamento confortável das partidas com vista panorâmica elevada.",
         items: [
           "Estrutura envidraçada existente com vista total do campo",
@@ -987,7 +984,6 @@
         categoryLabel: "Negócios e hospitalidade",
         location: "Anel intermediário do lado Sul (4 camarotes existentes)",
         happensHere: "Hospitalidade exclusiva para as quatro empresas parceiras (Empresa 1, Empresa 2, Empresa 3 e Empresa 4), cada camarote com a cor e a identidade da sua empresa.",
-        image: "/img/camarote-empresa.jpg",
         items: [
           "4 camarotes privativos identificados por cores distintas",
           "Sofás brancos com almofadas na cor de cada empresa",
@@ -1060,7 +1056,6 @@
         categories: ["negocios"],
         categoryLabel: "Negócios e hospitalidade",
         location: "Sobre o gramado, na cabeceira Oeste, de frente para o campo",
-        image: "/img/lounge-convidados.jpg",
         happensHere: "Experiência VIP à beira do gramado com atmosfera sofisticada, coquetelaria, networking e ponto oficial de fotos com o troféu da Royal Cup.",
         items: [
           "Deck elevado de madeira com guarda-corpo de vidro",
@@ -1251,15 +1246,9 @@
              </div>`;
       }
 
-      const imageBlock = space.image ? `
-        <figure class="mb-4 relative rounded-2xl overflow-hidden border border-gold-500/25 shadow-lg">
-          <img src="${space.image}" alt="${space.name}" loading="lazy" class="w-full aspect-video object-cover" />
-          <figcaption class="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] bg-navy-950/80 text-slate-200">Simulação ilustrativa</figcaption>
-        </figure>` : '';
 
       // Render Detail Content
       detailContent.innerHTML = `
-        ${imageBlock}
         <div class="flex items-start gap-3.5">
           <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 text-navy-950 font-display font-extrabold text-lg flex items-center justify-center shadow-lg shadow-gold-500/20 shrink-0">
             ${space.id}
