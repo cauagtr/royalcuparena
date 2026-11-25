@@ -1,0 +1,21 @@
+ROYAL CUP NA ARENA · PLANTA INTERATIVA
+
+Arquivos:
+  index.html   página
+  styles.css   estilos (Tailwind já compilado, sem CDN)
+  img/         fotos dos espaços
+  vercel.json  configuração do Vercel
+
+Publicar no Vercel (sem GitHub):
+  1. Instale o Vercel CLI:  npm i -g vercel
+  2. Entre nesta pasta:      cd royalcup-arena
+  3. Rode:                   vercel        (prévia)
+                             vercel --prod (link final)
+
+Publicar no Vercel (com GitHub):
+  1. Suba esta pasta para um repositório.
+  2. Em vercel.com > Add New > Project, importe o repositório.
+  3. Framework Preset: Other. Sem build command. Output: a própria pasta.
+
+Se mudar textos ou classes no index.html, recompile o CSS:
+  npx tailwindcss@3 -c tailwind.config.js -i input.css -o styles.css --minify

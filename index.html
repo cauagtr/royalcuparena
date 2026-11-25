@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Royal Cup na Arena — Planta Interativa</title>
+  <meta name="description" content="Planta interativa da Royal Cup na Arena: futebol, negócios e show em um só dia, na Arena da Baixada, em Curitiba." />
+  <meta property="og:title" content="Royal Cup na Arena · Planta interativa" />
+  <meta property="og:description" content="Futebol, negócios e show em um só dia. Explore os 13 espaços do evento." />
+  <meta property="og:image" content="/img/lounge-convidados.jpg" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#060E1F" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23D4AF37'/%3E%3Cpath d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5z' fill='%23060E1F'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    :root {
+      --navy-deep: #060E1F;
+      --navy-surface: #0B192C;
+      --gold-primary: #D4AF37;
+      --gold-bright: #F3D06B;
+    }
+
+    body {
+      background-color: var(--navy-deep);
+      color: #F8FAFC;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060E1F;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1D3A63;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #D4AF37;
+    }
+
+    /* SVG Interactive Zone Transitions */
+    .arena-zone {
+      cursor: pointer;
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  filter 0.3s ease,
+                  transform 0.3s ease;
+    }
+
+    .arena-zone:hover .zone-highlight,
+    .arena-zone.is-hovered .zone-highlight {
+      stroke: #F3D06B !important;
+      stroke-width: 3px !important;
+      filter: drop-shadow(0 0 10px rgba(243, 208, 107, 0.75));
+    }
+
+    .arena-zone.is-selected .zone-highlight {
+      stroke: #FFFFFF !important;
+      stroke-width: 3.5px !important;
+      filter: drop-shadow(0 0 14px rgba(243, 208, 107, 0.95));
+    }
+
+    .arena-zone.is-dimmed {
+      opacity: 0.22;
+    }
+
+    .arena-zone.is-dimmed:hover,
+    .arena-zone.is-dimmed.is-selected {
+      opacity: 0.85;
+    }
+
+    /* Show Mode Animations */
+    #stage-assembly {
+      transform-origin: 500px 330px;
+      transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+    }
+
+    body.mode-game #stage-assembly {
+      transform: scale(0.45);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.mode-show #stage-assembly {
+      transform: scale(1);
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    body.mode-show #stage-footprint-dashed {
+      opacity: 0;
+    }
+
+    body.mode-game #stage-footprint-dashed {
+      opacity: 0.75;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Game players visibility */
+    #game-players-layer {
+      transition: opacity 0.45s ease;
+    }
+    body.mode-show #game-players-layer {
+      opacity: 0;
+    }
+
+    /* Show Base modules transition */
+    .stage-module-parked {
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;
+    }
+    body.mode-show .stage-module-parked {
+      transform: translate(-180px, 0) scale(0.6);
+      opacity: 0.18;
+    }
+
+    /* Pulsing rings & beams in Show Mode */
+    @keyframes pulseRing {
+      0% {
+        transform: scale(0.92);
+        opacity: 0.85;
+      }
+      50% {
+        transform: scale(1.12);
+        opacity: 0.35;
+      }
+      100% {
+        transform: scale(0.92);
+        opacity: 0.85;
+      }
+    }
+
+    @keyframes rotateBeams {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes towerGlow {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.95; }
+    }
+
+    .stage-pulse-ring {
+      transform-origin: 500px 330px;
+      animation: pulseRing 2.6s infinite ease-in-out;
+    }
+
+    .stage-beams-spin {
+      transform-origin: 500px 330px;
+      animation: rotateBeams 24s infinite linear;
+    }
+
+    body.mode-show .tower-beam {
+      animation: towerGlow 1.8s infinite ease-in-out;
+      opacity: 0.85;
+    }
+    body.mode-game .tower-beam {
+      opacity: 0.25;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Number badge style inside SVG */
+    .pin-badge {
+      transition: transform 0.25s ease;
+      transform-box: view-box;
+      transform-origin: 0 0;
+    }
+    .arena-zone:hover .pin-badge,
+    .arena-zone.is-selected .pin-badge {
+      transform: scale(1.2);
+    }
+
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .arena-zone:focus { outline: none; }
+    .arena-zone:focus-visible .zone-highlight { stroke: #FFFFFF !important; stroke-width: 3px !important; }
+    @media (prefers-reduced-motion: reduce) {
+      .stage-pulse-ring, .stage-beams-spin, body.mode-show .tower-beam { animation: none !important; }
+    }
+
+    /* Mobile Bottom Sheet animation */
+    @media (max-width: 1023px) {
+      #detail-drawer {
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      #detail-drawer.drawer-closed {
+        transform: translateY(105%);
+      }
+      #detail-drawer.drawer-open {
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body class="mode-game min-h-screen flex flex-col font-sans selection:bg-gold-500 selection:text-navy-950">
+
+  <!-- TOP HEADER & CONTROLS -->
+  <header class="sticky top-0 z-30 bg-navy-900/95 backdrop-blur-md border-b border-gold-500/20 shadow-lg shadow-black/40">
+    <div class="max-w-[1600px] mx-auto px-3 sm:px-6 py-3">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        
+        <!-- Brand / Title -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-navy-950 shadow-md shadow-gold-500/20 shrink-0">
+              <!-- Crown / Trophy SVG Icon -->
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="font-display font-extrabold text-base sm:text-xl tracking-tight text-white">
+                  ROYAL CUP <span class="text-gold-400">NA ARENA</span>
+                </h1>
+                <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gold-500/15 text-gold-300 border border-gold-500/30">
+                  Planta Interativa
+                </span>
+              </div>
+              <p class="text-xs text-slate-400">Arena da Baixada • Curitiba — Implantação Geral (13 Espaços)</p>
+            </div>
+          </div>
+
+          <!-- Compact Mode Toggle for Mobile Header -->
+          <div class="md:hidden">
+            <button id="mode-toggle-mobile" type="button" onclick="toggleEventMode()"
+              class="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl font-display font-bold text-xs bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow-md shadow-gold-500/25 active:scale-95 transition">
+              <span id="mode-icon-mobile">⚽</span>
+              <span id="mode-label-mobile">Modo Jogo</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Center/Right Controls: Mode Switcher + Category Filters -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 justify-between md:justify-end">
+          
+          <!-- Desktop Segmented Mode Toggle -->
+          <div class="hidden md:flex items-center bg-navy-950 p-1 rounded-xl border border-gold-500/25 shadow-inner" role="group" aria-label="Alternar Modo do Evento">
+            <button id="btn-mode-game" type="button" onclick="setEventMode('game')"
+              class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7l3 2.2-1.1 3.6h-3.8L9 9.2 12 7z"/>
+              </svg>
+              Modo Jogo
+            </button>
+            <button id="btn-mode-show" type="button" onclick="setEventMode('show')"
+              class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all text-slate-300 hover:text-white">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 3v3m6.36-.36l-2.12 2.12M21 12h-3M5.64 5.64l2.12 2.12M3 12h3m3 7h6m-5 3h4"/>
+                <circle cx="12" cy="12" r="4"/>
+              </svg>
+              Modo Show
+            </button>
+          </div>
+
+          <!-- Category Filter Pills (Scrollable on Mobile) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 max-w-full no-scrollbar" id="filter-bar">
+            <button type="button" data-filter="all" onclick="setCategoryFilter('all')"
+              class="filter-btn active whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-gold-500/20 text-gold-300 border-gold-400 shadow-sm">
+              Todos (13)
+            </button>
+            <button type="button" data-filter="competicao" onclick="setCategoryFilter('competicao')"
+              class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-navy-800/80 text-slate-300 border-slate-700/80 hover:border-gold-500/50">
+              ⚽ Competição
+            </button>
+            <button type="button" data-filter="negocios" onclick="setCategoryFilter('negocios')"
+              class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-navy-800/80 text-slate-300 border-slate-700/80 hover:border-gold-500/50">
+              🥂 Negócios e hospitalidade
+            </button>
+            <button type="button" data-filter="show" onclick="setCategoryFilter('show')"
+              class="filter-btn whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-navy-800/80 text-slate-300 border-slate-700/80 hover:border-gold-500/50">
+              ✨ Show e transmissão
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE: FLOOR PLAN + DETAIL SIDEBAR -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto px-3 sm:px-6 py-4 flex flex-col lg:flex-row gap-4 sm:gap-6 relative">
+    
+    <!-- LEFT / CENTER: INTERACTIVE SVG ARENA MAP -->
+    <section class="flex-1 flex flex-col bg-navy-800/60 border border-gold-500/20 rounded-2xl shadow-2xl overflow-hidden relative">
+      
+      <!-- Status Banner inside Map -->
+      <div class="px-4 py-2.5 bg-navy-950/70 border-b border-gold-500/15 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2">
+          <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="status-text" class="font-medium text-slate-200">
+            <strong class="text-gold-400">Modo Jogo:</strong> Campo 50×30m livre para partidas de Futebol 7.
+          </span>
+        </div>
+        <div class="flex items-center gap-3 text-slate-400">
+          <span class="hidden sm:inline">Toque ou clique em qualquer espaço numerado para inspecionar</span>
+          <button type="button" onclick="resetSelection()" class="text-gold-400 hover:text-gold-300 font-semibold underline underline-offset-2">
+            Visão Geral
+          </button>
+        </div>
+      </div>
+
+      <!-- SVG Container -->
+      <div class="relative flex-1 flex items-center justify-center p-2 sm:p-4 bg-[radial-gradient(circle_at_center,#0F2342_0%,#060E1F_100%)] sm:min-h-[520px]">
+        
+        <!-- Floating Hover Tooltip -->
+        <div id="map-tooltip" class="pointer-events-none fixed z-50 opacity-0 transition-opacity duration-150 bg-navy-950/95 border border-gold-400/70 text-white px-3 py-1.5 rounded-xl shadow-xl backdrop-blur-md flex items-center gap-2 text-xs">
+          <span id="tooltip-num" class="w-5 h-5 rounded-full bg-gold-500 text-navy-950 font-display font-extrabold flex items-center justify-center text-[11px]">1</span>
+          <div>
+            <p id="tooltip-title" class="font-display font-bold text-gold-300 leading-tight">Campo da Royal Cup</p>
+            <p id="tooltip-cat" class="text-[10px] text-slate-400">Competição</p>
+          </div>
+        </div>
+
+        <!-- VECTOR FLOOR PLAN SVG (1000 x 720 coordinate system) -->
+        <svg id="arena-svg" viewBox="0 0 1000 720" class="w-full h-auto max-h-[74vh] select-none drop-shadow-[0_12px_32px_rgba(0,0,0,0.65)]" role="img" aria-label="Planta Baixa Interativa Royal Cup na Arena">
+          <defs>
+            <!-- Pitch Grass Gradient -->
+            <linearGradient id="pitchGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0E3B2E"/>
+              <stop offset="50%" stop-color="#134E3D"/>
+              <stop offset="100%" stop-color="#0D3529"/>
+            </linearGradient>
+
+            <!-- Gold Metallic Gradient -->
+            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#F8E39B"/>
+              <stop offset="50%" stop-color="#D4AF37"/>
+              <stop offset="100%" stop-color="#9A7818"/>
+            </linearGradient>
+
+            <!-- Navy Deck Gradient -->
+            <linearGradient id="navyDeck" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#173156"/>
+              <stop offset="100%" stop-color="#091528"/>
+            </linearGradient>
+
+            <!-- Spotlight Radial Glow -->
+            <radialGradient id="spotGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#F3D06B" stop-opacity="0.85"/>
+              <stop offset="60%" stop-color="#D4AF37" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- Stage Show Radial Glow -->
+            <radialGradient id="stageBeamGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#F3D06B" stop-opacity="0.65"/>
+              <stop offset="55%" stop-color="#38BDF8" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#060E1F" stop-opacity="0"/>
+            </radialGradient>
+
+            <!-- Roof Truss Pattern -->
+            <pattern id="trussPattern" width="24" height="24" patternUnits="userSpaceOnUse">
+              <path d="M0 12 L24 12 M12 0 L12 24 M0 0 L24 24 M24 0 L0 24" stroke="#64748B" stroke-width="0.45" stroke-opacity="0.22" fill="none"/>
+            </pattern>
+
+            <!-- Seating Rows Pattern -->
+            <pattern id="seatsPatternH" width="12" height="7" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="3.5" x2="12" y2="3.5" stroke="#475569" stroke-width="1" stroke-opacity="0.32"/>
+            </pattern>
+            <pattern id="seatsPatternV" width="7" height="12" patternUnits="userSpaceOnUse">
+              <line x1="3.5" y1="0" x2="3.5" y2="12" stroke="#475569" stroke-width="1" stroke-opacity="0.32"/>
+            </pattern>
+          </defs>
+
+          <!-- BACKGROUND ARCHITECTURAL GRID -->
+          <g opacity="0.22">
+            <line x1="500" y1="15" x2="500" y2="705" stroke="#D4AF37" stroke-width="0.8" stroke-dasharray="6 6"/>
+            <line x1="40" y1="330" x2="960" y2="330" stroke="#D4AF37" stroke-width="0.8" stroke-dasharray="6 6"/>
+            <rect x="45" y="20" width="910" height="630" rx="16" fill="none" stroke="#334155" stroke-width="1"/>
+          </g>
+
+          <!-- CARDINAL ORIENTATION LABELS & COMPASS -->
+          <g fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-size="11" font-weight="700" letter-spacing="1.5">
+            <text x="500" y="16" text-anchor="middle" fill="#D4AF37">▲ NORTE (SETOR VIP / DECK)</text>
+            <text x="500" y="712" text-anchor="middle">▼ SUL (CAMAROTES / TRANSMISSÃO / ACESSO VIP)</text>
+            <text x="24" y="330" text-anchor="middle" transform="rotate(-90 24 330)">OESTE</text>
+            <text x="976" y="330" text-anchor="middle" transform="rotate(90 976 330)">LESTE</text>
+          </g>
+
+          <!-- Rosa dos Ventos (Top Right) -->
+          <g transform="translate(915, 58)">
+            <circle cx="0" cy="0" r="22" fill="#0B192C" stroke="#D4AF37" stroke-width="1.2" opacity="0.9"/>
+            <polygon points="0,-17 4,-4 0,-7 -4,-4" fill="#F3D06B"/>
+            <polygon points="0,17 4,4 0,7 -4,4" fill="#475569"/>
+            <polygon points="17,0 4,4 7,0 4,-4" fill="#475569"/>
+            <polygon points="-17,0 -4,4 -7,0 -4,-4" fill="#475569"/>
+            <text x="0" y="-25" text-anchor="middle" fill="#F3D06B" font-size="10" font-weight="800">N</text>
+          </g>
+
+          <!-- Scale Bar (Bottom Left) -->
+          <g transform="translate(65, 675)">
+            <text x="0" y="-6" fill="#94A3B8" font-size="9" font-weight="600" letter-spacing="0.5">ESCALA GRÁFICA APROX.</text>
+            <rect x="0" y="0" width="30" height="5" fill="#D4AF37"/>
+            <rect x="30" y="0" width="30" height="5" fill="#1E293B" stroke="#D4AF37" stroke-width="0.6"/>
+            <rect x="60" y="0" width="60" height="5" fill="#D4AF37"/>
+            <text x="0" y="15" fill="#94A3B8" font-size="8.5">0</text>
+            <text x="30" y="15" fill="#94A3B8" font-size="8.5" text-anchor="middle">10</text>
+            <text x="60" y="15" fill="#94A3B8" font-size="8.5" text-anchor="middle">25</text>
+            <text x="120" y="15" fill="#94A3B8" font-size="8.5" text-anchor="middle">50m</text>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ARENA DA BAIXADA ARCHITECTURAL SHELL (OUTER STRUCTURE)    -->
+          <!-- ========================================================= -->
+          <g id="arena-structure">
+            <!-- Outer Stadium Perimeter -->
+            <rect x="85" y="32" width="830" height="596" rx="84" fill="#0B192C" stroke="#475569" stroke-width="2"/>
+            <!-- Roof Retractable Truss Ring -->
+            <rect x="96" y="42" width="808" height="576" rx="76" fill="url(#trussPattern)" stroke="#64748B" stroke-width="1" stroke-dasharray="8 4"/>
+            <!-- Inner Concourse Ring -->
+            <rect x="132" y="76" width="736" height="508" rx="54" fill="#0E2038" stroke="#334155" stroke-width="1.5"/>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 8: ARQUIBANCADAS (4 SIDES - FREE OF CONSTRUCTIONS)   -->
+          <!-- ========================================================= -->
+          <g id="zone-8" class="arena-zone" data-id="8" data-cat="competicao">
+            <!-- North Stands -->
+            <path class="zone-highlight" d="M 215 92 L 785 92 L 750 156 L 250 156 Z" fill="#162A46" stroke="#475569" stroke-width="1.2"/>
+            <path d="M 215 92 L 785 92 L 750 156 L 250 156 Z" fill="url(#seatsPatternH)"/>
+            <!-- South Stands -->
+            <path class="zone-highlight" d="M 250 504 L 750 504 L 785 568 L 215 568 Z" fill="#162A46" stroke="#475569" stroke-width="1.2"/>
+            <path d="M 250 504 L 750 504 L 785 568 L 215 568 Z" fill="url(#seatsPatternH)"/>
+            <!-- West Stands -->
+            <path class="zone-highlight" d="M 148 145 L 218 182 L 218 478 L 148 515 Z" fill="#162A46" stroke="#475569" stroke-width="1.2"/>
+            <path d="M 148 145 L 218 182 L 218 478 L 148 515 Z" fill="url(#seatsPatternV)"/>
+            <!-- East Stands -->
+            <path class="zone-highlight" d="M 852 145 L 782 182 L 782 478 L 852 515 Z" fill="#162A46" stroke="#475569" stroke-width="1.2"/>
+            <path d="M 852 145 L 782 182 L 782 478 L 852 515 Z" fill="url(#seatsPatternV)"/>
+
+            <!-- Corner Seating Connectors -->
+            <path d="M 148 145 Q 160 100 215 92 L 250 156 Q 225 165 218 182 Z" fill="#13243D" stroke="#334155" stroke-width="0.8"/>
+            <path d="M 852 145 Q 840 100 785 92 L 750 156 Q 775 165 782 182 Z" fill="#13243D" stroke="#334155" stroke-width="0.8"/>
+            <path d="M 148 515 Q 160 560 215 568 L 250 504 Q 225 495 218 478 Z" fill="#13243D" stroke="#334155" stroke-width="0.8"/>
+            <path d="M 852 515 Q 840 560 785 568 L 750 504 Q 775 495 782 478 Z" fill="#13243D" stroke="#334155" stroke-width="0.8"/>
+
+            <!-- Subtle Stand Labels -->
+            <text x="500" y="114" text-anchor="middle" fill="#94A3B8" font-size="9" font-weight="600" letter-spacing="1">ARQUIBANCADA NORTE (LIVRE • PULSEIRAS LED)</text>
+            <text x="500" y="556" text-anchor="middle" fill="#94A3B8" font-size="9" font-weight="600" letter-spacing="1">ARQUIBANCADA SUL (LIVRE • PULSEIRAS LED)</text>
+            <text x="176" y="330" text-anchor="middle" fill="#94A3B8" font-size="8.5" font-weight="600" transform="rotate(-90 176 330)">ARQUIBANCADA OESTE</text>
+            <text x="824" y="330" text-anchor="middle" fill="#94A3B8" font-size="8.5" font-weight="600" transform="rotate(90 824 330)">ARQUIBANCADA LESTE</text>
+
+            <!-- Number Pin 8 -->
+            <g transform="translate(182, 225)"><g class="pin-badge">
+              <circle r="11" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#F3D06B" font-size="10.5" font-weight="800">8</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 5: LOUNGE DE NEGÓCIOS (EXISTING NORTH VIP GLASS)     -->
+          <!-- ========================================================= -->
+          <g id="zone-5" class="arena-zone" data-id="5" data-cat="negocios">
+            <rect class="zone-highlight" x="260" y="46" width="480" height="40" rx="8" fill="#102749" stroke="#D4AF37" stroke-width="1.8" stroke-dasharray="5 3"/>
+            <!-- Interior icons: meeting tables, bar & buffet -->
+            <rect x="275" y="54" width="120" height="24" rx="4" fill="#1D3A63" stroke="#93C5FD" stroke-width="0.6"/>
+            <text x="335" y="69" text-anchor="middle" fill="#E2E8F0" font-size="8" font-weight="600">SALAS DE REUNIÃO</text>
+            
+            <rect x="402" y="54" width="196" height="24" rx="4" fill="#1D3A63" stroke="#F3D06B" stroke-width="0.7"/>
+            <text x="500" y="69" text-anchor="middle" fill="#F3D06B" font-size="7.6" font-weight="700">LOUNGE DE NEGÓCIOS &amp; RESTAURANTE VIP</text>
+
+            <rect x="605" y="54" width="120" height="24" rx="4" fill="#1D3A63" stroke="#93C5FD" stroke-width="0.6"/>
+            <text x="665" y="69" text-anchor="middle" fill="#E2E8F0" font-size="8" font-weight="600">BUFFET CHEF &amp; BAR</text>
+
+            <!-- Number Pin 5 -->
+            <g transform="translate(245, 66)"><g class="pin-badge">
+              <circle r="11" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#060E1F" font-size="10.5" font-weight="800">5</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 6: CAMAROTES DAS EMPRESAS (EXISTING SOUTH RING 1-4)  -->
+          <!-- ========================================================= -->
+          <g id="zone-6" class="arena-zone" data-id="6" data-cat="negocios">
+            <!-- Outer Dashed Container -->
+            <rect class="zone-highlight" x="235" y="574" width="530" height="40" rx="8" fill="#0B192C" stroke="#D4AF37" stroke-width="1.8" stroke-dasharray="5 3"/>
+            
+            <!-- Empresa 1 (Royal Blue) -->
+            <rect x="246" y="580" width="118" height="28" rx="5" fill="#1E3A8A" stroke="#60A5FA" stroke-width="1"/>
+            <text x="305" y="597" text-anchor="middle" fill="#FFFFFF" font-size="9" font-weight="700">EMPRESA 1</text>
+
+            <!-- Empresa 2 (Gold) -->
+            <rect x="374" y="580" width="118" height="28" rx="5" fill="#854D0E" stroke="#FACC15" stroke-width="1"/>
+            <text x="433" y="597" text-anchor="middle" fill="#FEF08A" font-size="9" font-weight="700">EMPRESA 2</text>
+
+            <!-- Empresa 3 (Crimson Red) -->
+            <rect x="508" y="580" width="118" height="28" rx="5" fill="#7F1D1D" stroke="#F87171" stroke-width="1"/>
+            <text x="567" y="597" text-anchor="middle" fill="#FECACA" font-size="9" font-weight="700">EMPRESA 3</text>
+
+            <!-- Empresa 4 (Emerald Green) -->
+            <rect x="636" y="580" width="118" height="28" rx="5" fill="#14532D" stroke="#4ADE80" stroke-width="1"/>
+            <text x="695" y="597" text-anchor="middle" fill="#BBF7D0" font-size="9" font-weight="700">EMPRESA 4</text>
+
+            <!-- Number Pin 6 -->
+            <g transform="translate(220, 594)"><g class="pin-badge">
+              <circle r="11" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#060E1F" font-size="10.5" font-weight="800">6</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 13: TRANSMISSÃO (SOUTH STAND CENTRALIZED TV STUDIO)  -->
+          <!-- ========================================================= -->
+          <g id="zone-13" class="arena-zone" data-id="13" data-cat="show">
+            <rect class="zone-highlight" x="415" y="514" width="170" height="32" rx="6" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8" stroke-dasharray="4 2"/>
+            <!-- Camera & Jib Graphic -->
+            <circle cx="442" cy="530" r="4" fill="#38BDF8"/>
+            <line x1="442" y1="530" x2="458" y2="520" stroke="#38BDF8" stroke-width="2"/>
+            <text x="510" y="533" text-anchor="middle" fill="#F3D06B" font-size="8.5" font-weight="700">ESTÚDIO TRANSMISSÃO</text>
+
+            <!-- Number Pin 13 -->
+            <g transform="translate(398, 530)"><g class="pin-badge">
+              <circle r="11" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#F3D06B" font-size="9.5" font-weight="800">13</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 10: ENTRADA VIP (EXTERNAL SOUTH ACCESS)              -->
+          <!-- ========================================================= -->
+          <g id="zone-10" class="arena-zone" data-id="10" data-cat="negocios">
+            <rect class="zone-highlight" x="420" y="636" width="160" height="44" rx="10" fill="#0B192C" stroke="#D4AF37" stroke-width="1.8"/>
+            <!-- Access Arrow -->
+            <path d="M 500 698 L 500 682 M 493 688 L 500 681 L 507 688" stroke="#F3D06B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <!-- Facial Recognition Turnstiles Icons -->
+            <rect x="448" y="644" width="12" height="8" rx="2" fill="#38BDF8" opacity="0.8"/>
+            <rect x="494" y="644" width="12" height="8" rx="2" fill="#38BDF8" opacity="0.8"/>
+            <rect x="540" y="644" width="12" height="8" rx="2" fill="#38BDF8" opacity="0.8"/>
+            <text x="500" y="668" text-anchor="middle" fill="#F8FAFC" font-size="8.5" font-weight="700">ENTRADA VIP &amp; CREDENCIAMENTO</text>
+
+            <!-- Number Pin 10 -->
+            <g transform="translate(402, 658)"><g class="pin-badge">
+              <circle r="11" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#060E1F" font-size="9.5" font-weight="800">10</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 9: TELÕES DA ARENA (WEST & EAST HEADERS)             -->
+          <!-- ========================================================= -->
+          <g id="zone-9" class="arena-zone" data-id="9" data-cat="show">
+            <!-- West Giant Screen -->
+            <rect class="zone-highlight" x="108" y="275" width="16" height="110" rx="4" fill="#060E1F" stroke="#F3D06B" stroke-width="2"/>
+            <rect x="112" y="282" width="8" height="96" rx="2" fill="#38BDF8" opacity="0.65"/>
+            <!-- East Giant Screen -->
+            <rect class="zone-highlight" x="876" y="275" width="16" height="110" rx="4" fill="#060E1F" stroke="#F3D06B" stroke-width="2"/>
+            <rect x="880" y="282" width="8" height="96" rx="2" fill="#38BDF8" opacity="0.65"/>
+
+            <!-- Number Pin 9 -->
+            <g transform="translate(116, 256)"><g class="pin-badge">
+              <circle r="11" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#F3D06B" font-size="10.5" font-weight="800">9</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- FULL STADIUM TURF BASE (GRAMADO)                          -->
+          <!-- ========================================================= -->
+          <rect x="224" y="164" width="552" height="332" rx="14" fill="#0B2E24" stroke="#1E4D3E" stroke-width="1.5"/>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 11: LOUNGE DOS CONVIDADOS (WEST PITCH HEADER)        -->
+          <!-- ========================================================= -->
+          <g id="zone-11" class="arena-zone" data-id="11" data-cat="negocios">
+            <!-- Wooden Deck Base -->
+            <rect class="zone-highlight" x="236" y="218" width="92" height="224" rx="10" fill="url(#navyDeck)" stroke="#D4AF37" stroke-width="2"/>
+            <!-- Glass Railing Facing Pitch -->
+            <line x1="326" y1="222" x2="326" y2="438" stroke="#7DD3FC" stroke-width="2.5" stroke-dasharray="6 2"/>
+            
+            <!-- Interior Details: Bar, Leather Sofas, Trophy Photo Area -->
+            <rect x="245" y="232" width="22" height="68" rx="4" fill="#1E3A5F" stroke="#D4AF37" stroke-width="0.9"/>
+            <text x="256" y="266" text-anchor="middle" fill="#F3D06B" font-size="7" font-weight="700" transform="rotate(-90 256 266)">BAR VIP</text>
+
+            <!-- Sofas -->
+            <rect x="280" y="238" width="32" height="16" rx="3" fill="#334155" stroke="#94A3B8" stroke-width="0.7"/>
+            <rect x="280" y="264" width="32" height="16" rx="3" fill="#334155" stroke="#94A3B8" stroke-width="0.7"/>
+
+            <!-- Trophy Photo Op Pedestal -->
+            <rect x="250" y="365" width="58" height="62" rx="6" fill="#091528" stroke="#F3D06B" stroke-width="1"/>
+            <circle cx="279" cy="392" r="10" fill="#D4AF37" opacity="0.3"/>
+            <path d="M 274 386 L 284 386 L 282 395 L 276 395 Z M 277 395 L 281 395 L 281 399 L 277 399 Z" fill="#F3D06B"/>
+            <text x="279" y="414" text-anchor="middle" fill="#F3D06B" font-size="6.8" font-weight="700">TROFÉU</text>
+
+            <text x="282" y="332" text-anchor="middle" fill="#FFFFFF" font-size="8.5" font-weight="700">LOUNGE</text>
+            <text x="282" y="343" text-anchor="middle" fill="#F3D06B" font-size="8" font-weight="600">CONVIDADOS</text>
+
+            <!-- Number Pin 11 -->
+            <g transform="translate(250, 212)"><g class="pin-badge">
+              <circle r="11" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#060E1F" font-size="9.5" font-weight="800">11</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 12: BASE DO SHOW (EAST PITCH HEADER)                 -->
+          <!-- ========================================================= -->
+          <g id="zone-12" class="arena-zone" data-id="12" data-cat="show">
+            <rect class="zone-highlight" x="672" y="218" width="92" height="224" rx="10" fill="#1E293B" stroke="#D4AF37" stroke-width="2" stroke-dasharray="5 3"/>
+            
+            <!-- Parked Circular Stage Modules (animate in Show Mode) -->
+            <g class="stage-module-parked">
+              <path d="M 686 245 A 32 32 0 0 1 748 245 L 732 265 A 14 14 0 0 0 702 265 Z" fill="#D4AF37" opacity="0.85" stroke="#060E1F" stroke-width="1"/>
+              <path d="M 686 305 A 32 32 0 0 0 748 305 L 732 285 A 14 14 0 0 1 702 285 Z" fill="#D4AF37" opacity="0.85" stroke="#060E1F" stroke-width="1"/>
+              <rect x="692" y="365" width="24" height="20" rx="3" fill="#0F172A" stroke="#F3D06B" stroke-width="1"/>
+              <rect x="722" y="365" width="24" height="20" rx="3" fill="#0F172A" stroke="#F3D06B" stroke-width="1"/>
+              <rect x="692" y="392" width="54" height="18" rx="3" fill="#0F172A" stroke="#94A3B8" stroke-width="0.8"/>
+            </g>
+
+            <text x="718" y="330" text-anchor="middle" fill="#F3D06B" font-size="8.5" font-weight="700">BASE DO SHOW</text>
+            <text id="base-show-sublabel" x="718" y="342" text-anchor="middle" fill="#CBD5E1" font-size="7" font-weight="500">Módulos / Backstage</text>
+
+            <!-- Number Pin 12 -->
+            <g transform="translate(750, 212)"><g class="pin-badge">
+              <circle r="11" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#F3D06B" font-size="9.5" font-weight="800">12</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 3: DECK DO APRESENTADOR (NORTH PITCH SIDELINE)       -->
+          <!-- ========================================================= -->
+          <g id="zone-3" class="arena-zone" data-id="3" data-cat="competicao show">
+            <rect class="zone-highlight" x="425" y="172" width="150" height="36" rx="7" fill="url(#navyDeck)" stroke="#F3D06B" stroke-width="2"/>
+            <!-- Front LED Strip -->
+            <line x1="432" y1="206" x2="568" y2="206" stroke="#F3D06B" stroke-width="3"/>
+            
+            <!-- DJ Booth, Host Podium, Narrator Desk -->
+            <rect x="434" y="179" width="34" height="18" rx="3" fill="#1E3A8A" stroke="#38BDF8" stroke-width="0.8"/>
+            <text x="451" y="191" text-anchor="middle" fill="#BAE6FD" font-size="7" font-weight="700">DJ</text>
+
+            <rect x="476" y="177" width="48" height="22" rx="4" fill="#D4AF37" opacity="0.25" stroke="#F3D06B" stroke-width="1"/>
+            <text x="500" y="191" text-anchor="middle" fill="#F8FAFC" font-size="7.5" font-weight="800">HOST</text>
+
+            <rect x="532" y="179" width="34" height="18" rx="3" fill="#1E3A8A" stroke="#38BDF8" stroke-width="0.8"/>
+            <text x="549" y="191" text-anchor="middle" fill="#BAE6FD" font-size="5.6" font-weight="700">NARRADOR</text>
+
+            <!-- Number Pin 3 -->
+            <g transform="translate(500, 165)"><g class="pin-badge">
+              <circle r="11" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#060E1F" font-size="10.5" font-weight="800">3</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 4: BANCOS DOS TIMES (2 EXISTING BENCHES NORTH SIDE)  -->
+          <!-- ========================================================= -->
+          <g id="zone-4" class="arena-zone" data-id="4" data-cat="competicao">
+            <!-- Left Bench -->
+            <rect class="zone-highlight" x="352" y="182" width="62" height="20" rx="4" fill="#0F172A" stroke="#D4AF37" stroke-width="1.5"/>
+            <text x="383" y="195" text-anchor="middle" fill="#E2E8F0" font-size="7.5" font-weight="700">BANCO A</text>
+
+            <!-- Right Bench -->
+            <rect class="zone-highlight" x="586" y="182" width="62" height="20" rx="4" fill="#0F172A" stroke="#D4AF37" stroke-width="1.5"/>
+            <text x="617" y="195" text-anchor="middle" fill="#E2E8F0" font-size="7.5" font-weight="700">BANCO B</text>
+
+            <!-- Number Pin 4 -->
+            <g transform="translate(383, 171)"><g class="pin-badge">
+              <circle r="10.5" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <text y="3.5" text-anchor="middle" fill="#F3D06B" font-size="10" font-weight="800">4</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 1: CAMPO DA ROYAL CUP (50x30m CENTRALIZED)           -->
+          <!-- ========================================================= -->
+          <g id="zone-1" class="arena-zone" data-id="1" data-cat="competicao">
+            <!-- Gold LED Perimeter Board -->
+            <rect class="zone-highlight" x="342" y="218" width="316" height="224" rx="8" fill="url(#pitchGrad)" stroke="url(#goldGrad)" stroke-width="4.5"/>
+            
+            <!-- Pitch Crisp White Markings -->
+            <g stroke="#FFFFFF" stroke-width="1.4" stroke-opacity="0.88" fill="none">
+              <!-- Outer Touchline -->
+              <rect x="352" y="228" width="296" height="204"/>
+              <!-- Halfway Line -->
+              <line x1="500" y1="228" x2="500" y2="432"/>
+              <!-- Center Circle -->
+              <circle cx="500" cy="330" r="34"/>
+              <circle cx="500" cy="330" r="2.5" fill="#FFFFFF"/>
+              <!-- West Penalty Area & Goal -->
+              <rect x="352" y="276" width="44" height="108"/>
+              <rect x="345" y="308" width="7" height="44" stroke="#F3D06B" stroke-width="2"/>
+              <!-- East Penalty Area & Goal -->
+              <rect x="604" y="276" width="44" height="108"/>
+              <rect x="648" y="308" width="7" height="44" stroke="#F3D06B" stroke-width="2"/>
+            </g>
+
+            <!-- Special Kings-Style Elements on Field -->
+            <!-- Digital Scoreboard (North edge) -->
+            <rect x="470" y="213" width="60" height="12" rx="3" fill="#060E1F" stroke="#F3D06B" stroke-width="1"/>
+            <text x="500" y="221.5" text-anchor="middle" fill="#F3D06B" font-size="6.8" font-weight="800">PLACAR LED</text>
+
+            <!-- Secret Cards Totem & Giant Dice (South-West & South-East) -->
+            <g transform="translate(425, 412)">
+              <rect x="-18" y="-8" width="36" height="15" rx="3" fill="#060E1F" stroke="#38BDF8" stroke-width="1"/>
+              <text y="2" text-anchor="middle" fill="#7DD3FC" font-size="6" font-weight="700">CARTAS</text>
+            </g>
+            <g transform="translate(575, 412)">
+              <rect x="-12" y="-10" width="24" height="20" rx="4" fill="#F8FAFC" stroke="#D4AF37" stroke-width="1.2"/>
+              <circle cx="-5" cy="-4" r="1.5" fill="#060E1F"/>
+              <circle cx="5" cy="4" r="1.5" fill="#060E1F"/>
+              <circle cx="0" cy="0" r="1.5" fill="#060E1F"/>
+            </g>
+
+            <!-- President's Penalty Spot with Spotlight -->
+            <g transform="translate(408, 330)">
+              <circle r="18" fill="url(#spotGlow)"/>
+              <circle r="3.5" fill="#F3D06B"/>
+              <text y="-11" text-anchor="middle" fill="#F8E39B" font-size="6" font-weight="700">PÊNALTI PRES.</text>
+            </g>
+
+            <!-- Stylized Players (Visible in Game Mode) -->
+            <g id="game-players-layer">
+              <!-- Team A (Gold) -->
+              <circle cx="430" cy="285" r="4" fill="#F3D06B" stroke="#060E1F" stroke-width="1"/>
+              <circle cx="465" cy="345" r="4" fill="#F3D06B" stroke="#060E1F" stroke-width="1"/>
+              <circle cx="490" cy="310" r="4" fill="#F3D06B" stroke="#060E1F" stroke-width="1"/>
+              <circle cx="535" cy="270" r="4" fill="#F3D06B" stroke="#060E1F" stroke-width="1"/>
+              <!-- Team B (Cyan/White) -->
+              <circle cx="475" cy="275" r="4" fill="#38BDF8" stroke="#060E1F" stroke-width="1"/>
+              <circle cx="520" cy="355" r="4" fill="#38BDF8" stroke="#060E1F" stroke-width="1"/>
+              <circle cx="565" cy="315" r="4" fill="#38BDF8" stroke="#060E1F" stroke-width="1"/>
+              <circle cx="585" cy="340" r="4" fill="#38BDF8" stroke="#060E1F" stroke-width="1"/>
+            </g>
+
+            <!-- Number Pin 1 -->
+            <g transform="translate(362, 242)"><g class="pin-badge">
+              <circle r="11" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#060E1F" font-size="10.5" font-weight="800">1</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 2: PALCO DO SHOW (CENTER OF PITCH - CIRCULAR STAGE)  -->
+          <!-- ========================================================= -->
+          <g id="zone-2" class="arena-zone" data-id="2" data-cat="show">
+            
+            <!-- Dashed Footprint (Visible in Game Mode as planning reference) -->
+            <g id="stage-footprint-dashed">
+              <circle class="zone-highlight" cx="500" cy="330" r="44" fill="#D4AF37" fill-opacity="0.08" stroke="#F3D06B" stroke-width="1.8" stroke-dasharray="5 4"/>
+              <text x="500" y="327" text-anchor="middle" fill="#F8E39B" font-size="6.8" font-weight="700">PALCO DO SHOW</text>
+              <text x="500" y="337" text-anchor="middle" fill="#CBD5E1" font-size="5.8">(montado após a final)</text>
+            </g>
+
+            <!-- Full Assembled Circular Stage (Animated in Show Mode) -->
+            <g id="stage-assembly">
+              <!-- Outer Light Aura -->
+              <circle cx="500" cy="330" r="88" fill="url(#stageBeamGrad)" pointer-events="none"/>
+              <!-- Pulsing Halo -->
+              <circle class="stage-pulse-ring" cx="500" cy="330" r="64" fill="none" stroke="#F3D06B" stroke-width="1.5" stroke-dasharray="10 6"/>
+              
+              <!-- Rotating Laser Beams -->
+              <g class="stage-beams-spin" opacity="0.55" pointer-events="none">
+                <line x1="500" y1="255" x2="500" y2="405" stroke="#38BDF8" stroke-width="1.5"/>
+                <line x1="425" y1="330" x2="575" y2="330" stroke="#F3D06B" stroke-width="1.5"/>
+                <line x1="447" y1="277" x2="553" y2="383" stroke="#F3D06B" stroke-width="1.2"/>
+                <line x1="553" y1="277" x2="447" y2="383" stroke="#38BDF8" stroke-width="1.2"/>
+              </g>
+
+              <!-- Main Circular Stage Deck -->
+              <circle class="zone-highlight" cx="500" cy="330" r="48" fill="#0B192C" stroke="#F3D06B" stroke-width="3"/>
+              <circle cx="500" cy="330" r="35" fill="#173156" stroke="#D4AF37" stroke-width="1.5"/>
+              <!-- Center Artist Podium -->
+              <circle cx="500" cy="330" r="14" fill="url(#goldGrad)"/>
+              <text x="500" y="333" text-anchor="middle" fill="#060E1F" font-size="7" font-weight="900">SHOW</text>
+
+              <!-- Pyro / CO2 Nozzles around stage perimeter -->
+              <circle cx="500" cy="282" r="3" fill="#FB923C"/>
+              <circle cx="500" cy="378" r="3" fill="#FB923C"/>
+              <circle cx="452" cy="330" r="3" fill="#FB923C"/>
+              <circle cx="548" cy="330" r="3" fill="#FB923C"/>
+            </g>
+
+            <!-- Number Pin 2 -->
+            <g transform="translate(534, 294)"><g class="pin-badge">
+              <circle r="11" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <text y="3.8" text-anchor="middle" fill="#F3D06B" font-size="10.5" font-weight="800">2</text>
+            </g></g>
+          </g>
+
+          <!-- ========================================================= -->
+          <!-- ZONE 7: TORRES DE LUZ CÊNICA (6 TRUSS TOWERS ON TURF)     -->
+          <!-- ========================================================= -->
+          <g id="zone-7" class="arena-zone" data-id="7" data-cat="show">
+            <!-- 4 Corner Towers + 2 Mid-Sideline Towers -->
+            <!-- NW Tower -->
+            <g transform="translate(236, 178)">
+              <circle class="tower-beam" r="16" fill="url(#spotGlow)"/>
+              <rect class="zone-highlight" x="-7" y="-7" width="14" height="14" rx="3" fill="#060E1F" stroke="#F3D06B" stroke-width="2"/>
+              <circle r="2.5" fill="#F3D06B"/>
+            </g>
+            <!-- NE Tower -->
+            <g transform="translate(764, 178)">
+              <circle class="tower-beam" r="16" fill="url(#spotGlow)"/>
+              <rect class="zone-highlight" x="-7" y="-7" width="14" height="14" rx="3" fill="#060E1F" stroke="#F3D06B" stroke-width="2"/>
+              <circle r="2.5" fill="#F3D06B"/>
+            </g>
+            <!-- SW Tower -->
+            <g transform="translate(236, 482)">
+              <circle class="tower-beam" r="16" fill="url(#spotGlow)"/>
+              <rect class="zone-highlight" x="-7" y="-7" width="14" height="14" rx="3" fill="#060E1F" stroke="#F3D06B" stroke-width="2"/>
+              <circle r="2.5" fill="#F3D06B"/>
+            </g>
+            <!-- SE Tower -->
+            <g transform="translate(764, 482)">
+              <circle class="tower-beam" r="16" fill="url(#spotGlow)"/>
+              <rect class="zone-highlight" x="-7" y="-7" width="14" height="14" rx="3" fill="#060E1F" stroke="#F3D06B" stroke-width="2"/>
+              <circle r="2.5" fill="#F3D06B"/>
+            </g>
+            <!-- North-Mid Tower -->
+            <g transform="translate(332, 178)">
+              <circle class="tower-beam" r="14" fill="url(#spotGlow)"/>
+              <rect class="zone-highlight" x="-6" y="-6" width="12" height="12" rx="2.5" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <circle r="2" fill="#F3D06B"/>
+            </g>
+            <!-- South-Mid Tower -->
+            <g transform="translate(500, 476)">
+              <circle class="tower-beam" r="14" fill="url(#spotGlow)"/>
+              <rect class="zone-highlight" x="-6" y="-6" width="12" height="12" rx="2.5" fill="#060E1F" stroke="#F3D06B" stroke-width="1.8"/>
+              <circle r="2" fill="#F3D06B"/>
+            </g>
+
+            <!-- Number Pin 7 -->
+            <g transform="translate(256, 482)"><g class="pin-badge">
+              <circle r="10.5" fill="#D4AF37" stroke="#060E1F" stroke-width="1.8"/>
+              <text y="3.5" text-anchor="middle" fill="#060E1F" font-size="10" font-weight="800">7</text>
+            </g></g>
+          </g>
+
+        </svg>
+      </div>
+
+      <!-- QUICK LEGEND BAR (1 TO 13 CHIPS FOR EASY MOBILE/DESKTOP ACCESS) -->
+      <div class="bg-navy-950/90 border-t border-gold-500/20 px-3 py-2.5">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[11px] font-display font-bold uppercase tracking-wider text-gold-400">Índice dos 13 Espaços</span>
+          <span class="text-[10px] text-slate-400">Selecione um número</span>
+        </div>
+        <div id="quick-legend-grid" class="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT / BOTTOM SHEET: SPACE DETAILS CARD -->
+    <aside id="detail-drawer"
+      class="drawer-closed lg:translate-y-0 fixed lg:static inset-x-0 bottom-0 z-40 lg:z-10 w-full lg:w-[400px] xl:w-[430px] shrink-0 bg-navy-900/98 lg:bg-navy-800/80 backdrop-blur-xl border-t-2 lg:border border-gold-500/40 lg:border-gold-500/25 rounded-t-3xl lg:rounded-2xl shadow-[0_-12px_40px_rgba(0,0,0,0.85)] lg:shadow-2xl flex flex-col max-h-[82vh] lg:max-h-[calc(100vh-110px)]">
+      
+      <!-- Mobile Drag Handle & Close Button -->
+      <div class="lg:hidden flex items-center justify-between px-5 pt-3 pb-1">
+        <div class="w-10 h-1.5 rounded-full bg-slate-600 mx-auto"></div>
+        <button type="button" onclick="closeMobileDrawer()" aria-label="Fechar detalhes"
+          class="absolute right-4 top-3 w-8 h-8 rounded-full bg-navy-800 border border-slate-700 text-slate-300 flex items-center justify-center hover:text-white">
+          ✕
+        </button>
+      </div>
+
+      <!-- Detail Card Content Container -->
+      <div id="detail-content" class="p-5 sm:p-6 overflow-y-auto flex-1">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+      <!-- Bottom Navigation Prev/Next Space -->
+      <div class="px-5 py-3 bg-navy-950/80 border-t border-gold-500/20 flex items-center justify-between gap-2 rounded-b-2xl">
+        <button type="button" onclick="navigateSpace(-1)"
+          class="flex-1 py-2 px-3 rounded-xl bg-navy-800 hover:bg-navy-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5 transition active:scale-95">
+          <span>←</span> Anterior
+        </button>
+        <span id="nav-counter" class="text-xs font-display font-bold text-gold-400 px-2">1 / 13</span>
+        <button type="button" onclick="navigateSpace(1)"
+          class="flex-1 py-2 px-3 rounded-xl bg-navy-800 hover:bg-navy-700 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-1.5 transition active:scale-95">
+          Próximo <span>→</span>
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  <footer class="max-w-[1600px] w-full mx-auto px-3 sm:px-6 pb-6 pt-1 text-[11px] text-slate-500 flex flex-wrap justify-between gap-2">
+    <span>Royal Cup na Arena · Projeto em planejamento. Empresas, convidados, atrações e data a definir.</span>
+    <span>Esquema e imagens ilustrativos. Posições a validar com a administração da Arena.</span>
+  </footer>
+
+  <script>
+    /**
+     * ROYAL CUP NA ARENA - DATA MODEL (13 SPACES)
+     * Strictly following the official architectural plan and event specifications.
+     */
+    const SPACES_DATA = [
+      {
+        id: 1,
+        name: "Campo da Royal Cup",
+        shortName: "Campo 50×30m",
+        categories: ["competicao"],
+        categoryLabel: "Competição",
+        location: "Centro do gramado (50 × 30 metros)",
+        happensHere: "Palco principal das partidas de Futebol 7 em formato dinâmico estilo Kings League, com regras especiais, cartas secretas e o icônico pênalti batido pelos presidentes das empresas.",
+        items: [
+          "Campo oficial de Futebol 7 (50 × 30 m) com dois gols",
+          "Anel perimetral de placas de LED douradas de alta definição",
+          "Placar digital centralizado na lateral norte",
+          "Totem iluminado das cartas secretas",
+          "Dado gigante oficial para eventos especiais de jogo",
+          "Marca do 'Pênalti do Presidente' com spotlight dedicado"
+        ]
+      },
+      {
+        id: 2,
+        name: "Palco do Show",
+        shortName: "Palco Circular",
+        categories: ["show"],
+        categoryLabel: "Show e transmissão",
+        location: "Centro do campo (montado após a final)",
+        image: "/img/jogo-e-show.jpg",
+        happensHere: "Espetáculo de encerramento televisionado com energia de Super Bowl. Durante os jogos o campo fica totalmente livre; após o apito final, os módulos são acoplados no centro do gramado.",
+        items: [
+          "Palco circular modular de montagem rápida",
+          "Estrutura de treliça aérea e painéis de LED 360°",
+          "Moving lights e lasers em azul-marinho e dourado",
+          "Bicos de CO₂ e efeitos de chamas (sujeitos à aprovação dos Bombeiros)",
+          "Corpo de baile com dezenas de dançarinos",
+          "Câmeras de TV e gruas posicionadas ao redor"
+        ]
+      },
+      {
+        id: 3,
+        name: "Deck do Apresentador",
+        shortName: "Deck Host & DJ",
+        categories: ["competicao", "show"],
+        categoryLabel: "Competição • Show",
+        location: "Meio da lateral norte do gramado, de frente para o campo",
+        happensHere: "Centro de comando e entretenimento ao vivo da Arena. O apresentador conduz o evento, chama os executivos representantes de cada empresa ao vivo e interage com a narração e trilha sonora.",
+        items: [
+          "Plataforma elevada sobre o gramado com vista privilegiada",
+          "Cabine de DJ com set completo e iluminação cênica",
+          "Bancada oficial do narrador e comentaristas",
+          "Púlpito do apresentador com microfone sem fio",
+          "Painéis frontais de LED com identidade visual da Royal Cup"
+        ]
+      },
+      {
+        id: 4,
+        name: "Bancos dos Times",
+        shortName: "Bancos dos Times",
+        categories: ["competicao"],
+        categoryLabel: "Competição",
+        location: "Lateral norte do gramado, um de cada lado do Deck do Apresentador",
+        happensHere: "Área técnica oficial das equipes participantes durante os confrontos, aproveitando os dois bancos originais da estrutura da Arena da Baixada.",
+        items: [
+          "2 bancos de reservas existentes na Arena da Baixada",
+          "Assentos esportivos cobertos para atletas e comissão",
+          "Acesso direto à linha lateral do campo de 50 × 30 m",
+          "Posicionamento simétrico ao lado do Deck do Apresentador"
+        ]
+      },
+      {
+        id: 5,
+        name: "Lounge de Negócios",
+        shortName: "Lounge Negócios",
+        categories: ["negocios"],
+        categoryLabel: "Negócios e hospitalidade",
+        location: "Lounge e restaurante VIP existentes no setor Norte (envidraçados)",
+        image: "/img/lounge-negocios.jpg",
+        happensHere: "Ambiente corporativo de alto nível para rodadas de negócios, networking entre executivos e acompanhamento confortável das partidas com vista panorâmica elevada.",
+        items: [
+          "Estrutura envidraçada existente com vista total do campo",
+          "Mesas de reunião equipadas para rodadas de negócios",
+          "Buffet gastronômico assinado por chef",
+          "Bar completo e estação de cafés especiais",
+          "Poltronas confortáveis e TVs com transmissão ao vivo"
+        ]
+      },
+      {
+        id: 6,
+        name: "Camarotes das Empresas",
+        shortName: "Camarotes 1 a 4",
+        categories: ["negocios"],
+        categoryLabel: "Negócios e hospitalidade",
+        location: "Anel intermediário do lado Sul (4 camarotes existentes)",
+        happensHere: "Hospitalidade exclusiva para as quatro empresas parceiras (Empresa 1, Empresa 2, Empresa 3 e Empresa 4), cada camarote com a cor e a identidade da sua empresa.",
+        image: "/img/camarote-empresa.jpg",
+        items: [
+          "4 camarotes privativos identificados por cores distintas",
+          "Sofás brancos com almofadas na cor de cada empresa",
+          "Buffet exclusivo de salgados e doces e frigobar abastecido",
+          "Mesa de pebolim para entretenimento dos convidados",
+          "TV interna com sinal da transmissão e kit de boas-vindas",
+          "Varanda privativa com cadeiras estofadas de frente para o campo"
+        ]
+      },
+      {
+        id: 7,
+        name: "Torres de Luz Cênica",
+        shortName: "6 Torres de Luz",
+        categories: ["show"],
+        categoryLabel: "Show e transmissão",
+        location: "Sobre o gramado (4 nos cantos e 2 no meio das laterais)",
+        happensHere: "Garantem a iluminação dramática de espetáculo esportivo e televisivo, criando feixes arquiteturais em azul-marinho e dourado durante os jogos e o show final.",
+        items: [
+          "6 torres verticais de treliça metálica sobre o gramado",
+          "Refletores moving head de alta potência",
+          "Feixes cênicos sincronizados com gols, pênaltis e o show"
+        ]
+      },
+      {
+        id: 8,
+        name: "Arquibancadas",
+        shortName: "Arquibancadas",
+        categories: ["competicao"],
+        categoryLabel: "Competição",
+        location: "4 setores ao redor do gramado (Norte, Sul, Leste e Oeste)",
+        happensHere: "Recebem o público geral em arquibancadas totalmente livres de estruturas temporárias, transformando a torcida em parte do espetáculo visual.",
+        items: [
+          "Assentos originais da Arena 100% livres nos 4 lados",
+          "Milhares de pulseiras de LED sincronizadas com o evento",
+          "Visibilidade desobstruída para o campo e o palco central"
+        ]
+      },
+      {
+        id: 9,
+        name: "Telões da Arena",
+        shortName: "Telões",
+        categories: ["show"],
+        categoryLabel: "Show e transmissão",
+        location: "Cabeceiras Oeste e Leste da Arena",
+        happensHere: "Exibem o sinal oficial da transmissão, replays instantâneos, animações das cartas secretas, placar e close-ups do show de encerramento.",
+        items: [
+          "2 telões gigantes de alta luminosidade nas cabeceiras",
+          "Integração em tempo real com o placar e cartas do jogo",
+          "Transmissão simultânea das entrevistas no Deck"
+        ]
+      },
+      {
+        id: 10,
+        name: "Entrada VIP",
+        shortName: "Entrada VIP",
+        categories: ["negocios"],
+        categoryLabel: "Negócios e hospitalidade",
+        location: "Área externa Sul da Arena",
+        happensHere: "Fluxo exclusivo de chegada, recepção e controle de acesso rápido para convidados VIP, executivos das empresas e autoridades.",
+        items: [
+          "Recepção dedicada na área externa Sul",
+          "Balcões de credenciamento expresso",
+          "Catracas inteligentes com reconhecimento facial"
+        ]
+      },
+      {
+        id: 11,
+        name: "Lounge dos Convidados",
+        shortName: "Lounge Oeste",
+        categories: ["negocios"],
+        categoryLabel: "Negócios e hospitalidade",
+        location: "Sobre o gramado, na cabeceira Oeste, de frente para o campo",
+        image: "/img/lounge-convidados.jpg",
+        happensHere: "Experiência VIP à beira do gramado com atmosfera sofisticada, coquetelaria, networking e ponto oficial de fotos com o troféu da Royal Cup.",
+        items: [
+          "Deck elevado de madeira com guarda-corpo de vidro",
+          "Tapete azul-marinho, sofás e poltronas de couro",
+          "Bar central com bartender preparando drinks",
+          "Mesas bistrô altas com serviço volante de garçons",
+          "Área de fotos oficial com o troféu dourado em pedestal"
+        ]
+      },
+      {
+        id: 12,
+        name: "Base do Show",
+        shortName: "Base do Show",
+        categories: ["show"],
+        categoryLabel: "Show e transmissão",
+        location: "Sobre o gramado, na cabeceira Leste",
+        happensHere: "Área logística e backstage técnico onde os módulos do palco circular ficam estacionados durante os jogos, prontos para entrar em campo na final.",
+        items: [
+          "Módulos pré-montados do palco circular sobre carrinhos",
+          "Área de backstage técnico e concentração de artistas",
+          "Cases de áudio, iluminação e pirotecnia"
+        ]
+      },
+      {
+        id: 13,
+        name: "Transmissão",
+        shortName: "Transmissão TV",
+        categories: ["show"],
+        categoryLabel: "Show e transmissão",
+        location: "Arquibancada Sul, centralizado ao campo (estúdio da Arena)",
+        happensHere: "Operação oficial de broadcast da Royal Cup na Arena, captando todos os ângulos das partidas, entrevistas ao vivo e o show estilo Super Bowl.",
+        items: [
+          "Estúdio da Arena na estrutura Sul (a confirmar)",
+          "Câmeras de broadcast de alta definição",
+          "Grua articulada para movimentos aéreos sobre o campo"
+        ]
+      }
+    ];
+
+    // State
+    let currentMode = 'game'; // 'game' | 'show'
+    let currentFilter = 'all'; // 'all' | 'competicao' | 'negocios' | 'show'
+    let selectedSpaceId = 1;
+
+    // DOM References
+    const tooltip = document.getElementById('map-tooltip');
+    const tooltipNum = document.getElementById('tooltip-num');
+    const tooltipTitle = document.getElementById('tooltip-title');
+    const tooltipCat = document.getElementById('tooltip-cat');
+    const detailDrawer = document.getElementById('detail-drawer');
+    const detailContent = document.getElementById('detail-content');
+    const navCounter = document.getElementById('nav-counter');
+    const quickLegendGrid = document.getElementById('quick-legend-grid');
+
+    /**
+     * Initialize Interactive Map, Legend & Initial Detail View
+     */
+    function initApp() {
+      renderQuickLegend();
+      bindSvgZoneEvents();
+      selectSpace(1, false);
+    }
+
+    /**
+     * Render Quick Legend Chips (1 to 13) below the map
+     */
+    function renderQuickLegend() {
+      quickLegendGrid.innerHTML = SPACES_DATA.map(space => `
+        <button type="button"
+          id="chip-${space.id}"
+          onclick="selectSpace(${space.id}, true)"
+          onmouseenter="highlightZone(${space.id}, true)"
+          onmouseleave="highlightZone(${space.id}, false)"
+          data-cat="${space.categories.join(' ')}"
+          class="legend-chip shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all bg-navy-900 text-slate-300 border-slate-700/80 hover:border-gold-400">
+          <span class="w-4 h-4 rounded-full bg-gold-500/20 text-gold-300 font-display font-bold text-[10px] flex items-center justify-center">
+            ${space.id}
+          </span>
+          <span>${space.shortName}</span>
+        </button>
+      `).join('');
+    }
+
+    /**
+     * Bind Hover, Move & Click Events to all 13 SVG Zones
+     */
+    function bindSvgZoneEvents() {
+      const zones = document.querySelectorAll('.arena-zone');
+      zones.forEach(zone => {
+        const id = parseInt(zone.getAttribute('data-id'), 10);
+        const space = SPACES_DATA.find(s => s.id === id);
+
+        zone.addEventListener('mouseenter', (e) => {
+          zone.classList.add('is-hovered');
+          if (space) {
+            tooltipNum.textContent = space.id;
+            tooltipTitle.textContent = space.name;
+            tooltipCat.textContent = space.categoryLabel;
+            tooltip.style.opacity = '1';
+          }
+        });
+
+        zone.addEventListener('mousemove', (e) => {
+          const offsetX = 14;
+          const offsetY = 14;
+          let left = e.clientX + offsetX;
+          let top = e.clientY + offsetY;
+
+          // Keep tooltip inside viewport
+          if (left + 210 > window.innerWidth) left = e.clientX - 210;
+          if (top + 60 > window.innerHeight) top = e.clientY - 60;
+
+          tooltip.style.left = `${left}px`;
+          tooltip.style.top = `${top}px`;
+        });
+
+        zone.addEventListener('mouseleave', () => {
+          zone.classList.remove('is-hovered');
+          tooltip.style.opacity = '0';
+        });
+
+        zone.setAttribute('tabindex', '0');
+        zone.setAttribute('role', 'button');
+        if (space) zone.setAttribute('aria-label', `${space.id}. ${space.name}`);
+        zone.addEventListener('click', () => {
+          tooltip.style.opacity = '0';
+          selectSpace(id, true);
+        });
+        zone.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectSpace(id, true); }
+        });
+      });
+    }
+
+    /**
+     * Highlight SVG zone when hovering legend chips
+     */
+    function highlightZone(id, isHovered) {
+      const zone = document.getElementById(`zone-${id}`);
+      if (zone) {
+        zone.classList.toggle('is-hovered', isHovered);
+      }
+    }
+
+    /**
+     * Select a space and render its detail card
+     */
+    function selectSpace(id, openDrawerOnMobile = true) {
+      selectedSpaceId = id;
+      const space = SPACES_DATA.find(s => s.id === id);
+      if (!space) return;
+
+      // Update SVG active class
+      document.querySelectorAll('.arena-zone').forEach(z => {
+        z.classList.toggle('is-selected', parseInt(z.getAttribute('data-id'), 10) === id);
+      });
+
+      // Update Legend Chip active class
+      document.querySelectorAll('.legend-chip').forEach(chip => {
+        const isSelected = chip.id === `chip-${id}`;
+        if (isSelected) {
+          chip.classList.add('bg-gold-500/25', 'border-gold-400', 'text-white');
+          chip.classList.remove('bg-navy-900', 'border-slate-700/80', 'text-slate-300');
+          chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          chip.classList.remove('bg-gold-500/25', 'border-gold-400', 'text-white');
+          chip.classList.add('bg-navy-900', 'border-slate-700/80', 'text-slate-300');
+        }
+      });
+
+      // Special dynamic note for Stage (2) or Show Base (12) depending on Mode
+      let modeContextBadge = '';
+      if (space.id === 2) {
+        modeContextBadge = currentMode === 'show'
+          ? `<div class="mt-3 px-3 py-2 rounded-xl bg-gold-500/15 border border-gold-400/40 text-xs text-gold-200 flex items-center gap-2">
+               <span>✨</span> <span><strong>Modo Show Ativo:</strong> Palco montado no centro do campo com efeitos visuais.</span>
+             </div>`
+          : `<div class="mt-3 px-3 py-2 rounded-xl bg-navy-950/90 border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
+               <span>⚽</span> <span><strong>Modo Jogo Ativo:</strong> Área tracejada; o palco entra em campo somente após a final.</span>
+             </div>`;
+      } else if (space.id === 12) {
+        modeContextBadge = currentMode === 'show'
+          ? `<div class="mt-3 px-3 py-2 rounded-xl bg-gold-500/15 border border-gold-400/40 text-xs text-gold-200 flex items-center gap-2">
+               <span>🚀</span> <span><strong>Transição Concluída:</strong> Módulos deslocados para formar o Palco Circular (2).</span>
+             </div>`
+          : `<div class="mt-3 px-3 py-2 rounded-xl bg-navy-950/90 border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
+               <span>📦</span> <span><strong>Em Espera:</strong> Módulos estacionados na cabeceira Leste durante os jogos.</span>
+             </div>`;
+      }
+
+      const imageBlock = space.image ? `
+        <figure class="mb-4 relative rounded-2xl overflow-hidden border border-gold-500/25 shadow-lg">
+          <img src="${space.image}" alt="${space.name}" loading="lazy" class="w-full aspect-video object-cover" />
+          <figcaption class="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] bg-navy-950/80 text-slate-200">Simulação ilustrativa</figcaption>
+        </figure>` : '';
+
+      // Render Detail Content
+      detailContent.innerHTML = `
+        ${imageBlock}
+        <div class="flex items-start gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-gold-400 to-gold-600 text-navy-950 font-display font-extrabold text-lg flex items-center justify-center shadow-lg shadow-gold-500/20 shrink-0">
+            ${space.id}
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gold-500/15 text-gold-300 border border-gold-500/30 mb-1">
+              ${space.categoryLabel}
+            </span>
+            <h2 class="font-display font-extrabold text-xl text-white leading-snug">
+              ${space.name}
+            </h2>
+          </div>
+        </div>
+
+        <!-- Location Pill -->
+        <div class="mt-4 flex items-start gap-2 text-xs text-slate-300 bg-navy-950/70 px-3.5 py-2.5 rounded-xl border border-slate-800">
+          <svg class="w-4 h-4 text-gold-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"/>
+            <circle cx="12" cy="11" r="2.5"/>
+          </svg>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">Localização na Arena</span>
+            <span class="font-medium text-slate-100">${space.location}</span>
+          </div>
+        </div>
+
+        ${modeContextBadge}
+
+        <!-- What Happens Here -->
+        <div class="mt-5">
+          <h3 class="font-display font-bold text-xs uppercase tracking-wider text-gold-400 mb-1.5">
+            O que acontece ali
+          </h3>
+          <p class="text-sm text-slate-200 leading-relaxed">
+            ${space.happensHere}
+          </p>
+        </div>
+
+        <!-- What's Inside Checklist -->
+        <div class="mt-5">
+          <h3 class="font-display font-bold text-xs uppercase tracking-wider text-gold-400 mb-2.5">
+            O que tem dentro
+          </h3>
+          <ul class="space-y-2">
+            ${space.items.map(item => `
+              <li class="flex items-start gap-2.5 text-sm text-slate-200 bg-navy-950/45 px-3 py-2 rounded-xl border border-slate-800/80">
+                <span class="w-5 h-5 rounded-full bg-gold-500/20 text-gold-400 flex items-center justify-center text-xs shrink-0 mt-0.5">✓</span>
+                <span class="leading-snug">${item}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+
+      navCounter.textContent = `${space.id} / ${SPACES_DATA.length}`;
+      detailContent.scrollTop = 0;
+
+      if (openDrawerOnMobile && window.innerWidth < 1024) {
+        detailDrawer.classList.remove('drawer-closed');
+        detailDrawer.classList.add('drawer-open');
+      }
+    }
+
+    /**
+     * Close Mobile Drawer
+     */
+    function closeMobileDrawer() {
+      detailDrawer.classList.remove('drawer-open');
+      detailDrawer.classList.add('drawer-closed');
+    }
+
+    /**
+     * Navigate Next / Previous Space
+     */
+    function navigateSpace(delta) {
+      let nextId = selectedSpaceId + delta;
+      if (nextId > SPACES_DATA.length) nextId = 1;
+      if (nextId < 1) nextId = SPACES_DATA.length;
+      selectSpace(nextId, true);
+    }
+
+    /**
+     * Toggle between "Modo Jogo" and "Modo Show"
+     */
+    function setEventMode(mode) {
+      currentMode = mode;
+      document.body.classList.remove('mode-game', 'mode-show');
+      document.body.classList.add(`mode-${mode}`);
+
+      const btnGame = document.getElementById('btn-mode-game');
+      const btnShow = document.getElementById('btn-mode-show');
+      const mobileLabel = document.getElementById('mode-label-mobile');
+      const mobileIcon = document.getElementById('mode-icon-mobile');
+      const statusText = document.getElementById('status-text');
+      const statusDot = document.getElementById('status-dot');
+      const baseShowSub = document.getElementById('base-show-sublabel');
+
+      if (mode === 'game') {
+        btnGame.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow";
+        btnShow.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all text-slate-300 hover:text-white";
+        mobileLabel.textContent = "Modo Jogo";
+        mobileIcon.textContent = "⚽";
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse";
+        statusText.innerHTML = `<strong class="text-gold-400">Modo Jogo:</strong> Campo 50×30m livre para partidas de Futebol 7.`;
+        if (baseShowSub) baseShowSub.textContent = "Módulos Estacionados";
+      } else {
+        btnShow.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 shadow";
+        btnGame.className = "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-display font-bold transition-all text-slate-300 hover:text-white";
+        mobileLabel.textContent = "Modo Show";
+        mobileIcon.textContent = "✨";
+        statusDot.className = "w-2.5 h-2.5 rounded-full bg-gold-400 animate-ping";
+        statusText.innerHTML = `<strong class="text-gold-400">Modo Show Final:</strong> Palco circular montado no centro do campo!`;
+        if (baseShowSub) baseShowSub.textContent = "Em Operação no Centro";
+      }
+
+      // Refresh selected card context if viewing Stage (2) or Base (12)
+      if (selectedSpaceId === 2 || selectedSpaceId === 12) {
+        selectSpace(selectedSpaceId, false);
+      }
+    }
+
+    function toggleEventMode() {
+      setEventMode(currentMode === 'game' ? 'show' : 'game');
+    }
+
+    /**
+     * Filter Spaces by Category
+     */
+    function setCategoryFilter(filter) {
+      currentFilter = filter;
+
+      // Update Filter Buttons Styling
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        const isActive = btn.getAttribute('data-filter') === filter;
+        if (isActive) {
+          btn.className = "filter-btn active whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-gold-500/20 text-gold-300 border-gold-400 shadow-sm";
+        } else {
+          btn.className = "filter-btn whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-navy-800/80 text-slate-300 border-slate-700/80 hover:border-gold-500/50";
+        }
+      });
+
+      // Dim non-matching SVG Zones
+      document.querySelectorAll('.arena-zone').forEach(zone => {
+        if (filter === 'all') {
+          zone.classList.remove('is-dimmed');
+        } else {
+          const cats = (zone.getAttribute('data-cat') || '').split(' ');
+          zone.classList.toggle('is-dimmed', !cats.includes(filter));
+        }
+      });
+
+      // Dim non-matching Legend Chips
+      document.querySelectorAll('.legend-chip').forEach(chip => {
+        if (filter === 'all') {
+          chip.classList.remove('opacity-35');
+        } else {
+          const cats = (chip.getAttribute('data-cat') || '').split(' ');
+          chip.classList.toggle('opacity-35', !cats.includes(filter));
+        }
+      });
+
+      // Auto-switch to Show Mode if user clicks Show filter while stage is hidden, or keep gentle
+      if (filter === 'show' && currentMode === 'game') {
+        setEventMode('show');
+      }
+    }
+
+    /**
+     * Reset filters & zoom/selection overview
+     */
+    function resetSelection() {
+      setCategoryFilter('all');
+      closeMobileDrawer();
+    }
+
+    // Boot
+    window.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMobileDrawer();
+      if (e.key === 'ArrowRight') navigateSpace(1);
+      if (e.key === 'ArrowLeft') navigateSpace(-1);
+    });
+  </script>
+</body>
+</html>
